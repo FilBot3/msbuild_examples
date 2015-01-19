@@ -1,0 +1,48 @@
+<!-- To execute this script, either have MSBuild.exe in your PATH variable, or use MONO's xbuild, which would also have to be
+	in the PATH variable for the command line.
+	Since there is only one target group to call, it will run when MSBuild/xbuild is executed from the same directory, otherwise,
+	issue: 
+		xbuild <projectfiles>.csproj /t:Build
+		MSBuild <projectfile>.csproj /t:Build
+		
+	http://msdn.microsoft.com/en-us/library/dd576348.aspx - Simple MSBuild Walk-through
+	http://msdn.microsoft.com/en-us/library/dd393573.aspx - Using MSBuild 
+-->
+<Project DefaultTargest="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<!-- This Compile statement, gathers all the source files listed in an item called Compiled 
+			ItemGroups interact with the source code.
+		-->
+		<Compile Include="msbuild_example_01.cs" />
+	</ItemGroup>
+	
+	<PropertyGroup>
+		<!-- This Property will make a variable named MSBuildSample, then you can use it to 
+			assign to whatever in the script.
+			Properties are variables inside the script.
+		-->
+		<AssemblyName>MSBuildSample</AssemblyName>
+		<OutputPath>bin\</OutputPath>
+	</PropertyGroup>
+	<!-- In the Build target, the Inputs and Outputs targets which looks to see if the files have been updated,
+		or if the files are existent. If the files have not been changed, then the Build target is skipped. 
+	-->
+	<Target Name="Build" Inputs="@(Compile)" Outputs="$(OutputPath)$(AssemblyName).exe" >
+		<!-- The MakeDir directive will create the directory in the property group above, if it meets the 
+			condition stated in the Condition= statement. 
+		-->
+		<MakeDir Directories="$(OutputPath)" Condition="!Exists('$(OutputPath)')" />
+		<!-- This Csc is the .NET C# compiler, which then uses the ItemGroup of collected sources called, Compile 
+		-->
+		<Csc Sources="@(Compile)" OutputAssembly="$(OutputPath)$(AssemblyName).exe" />
+	</Target>
+	
+	<Target Name="Clean">
+		<!-- This target will delete the folder\program.exe
+		-->
+		<Delete Files="$(OutputPath)$(AssemblyName).exe" />
+	</Target>
+	
+	<Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+
+</Project>
